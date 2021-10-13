@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "dist",
+    "rootDirs": ["./BitCoinPrice", "../.."],
+    "baseUrl": ".",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "strict": false
+  }
+}

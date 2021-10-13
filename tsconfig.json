@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "rootDir": "./src",
+        "outDir": "./lib",
+        "sourceMap": true,
+        "strict": false,
+        "declaration": true,
+        "experimentalDecorators": true
+    },
+    "include": ["src"],
+    "exclude": [
+        "node_modules",
+        "**/__tests__/*",
+        "**/*.test.ts"
+    ]
+}
