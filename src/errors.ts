@@ -1,5 +1,4 @@
 /* tslint:disable  max-classes-per-file */
-import { Context, } from "@azure/functions";
 
 export class HttpError extends Error {
     status: number;
@@ -20,31 +19,5 @@ export class NotFound extends HttpError {
 export class Unauthorized extends HttpError {
     constructor(msg: string) {
         super(msg, 404);
-    }
-}
-
-
-export function handleError(err: Error | HttpError, context: Context) {
-    if (err instanceof HttpError) {
-        context.res = {
-            status: err.status.toString(),
-            body: {
-                error: {
-                    name: err.name,
-                    message: err.message,
-                    status: err.status,
-                },
-            },
-        };
-    } else {
-        context.res = {
-            status: "500",
-            body: {
-                error: {
-                    name: err.name,
-                    message: err.message,
-                },
-            },
-        };
     }
 }

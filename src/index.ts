@@ -1,9 +1,9 @@
 import { AzureFunction, Context, HttpRequest, } from "@azure/functions";
-import { handleError, NotFound, } from "./errors";
+import * as errors from "./errors";
 import { generateOpenApi, } from "./openapi";
 import { Route, RouteOpts, } from "./route";
 
-export * as Errors from "./errors";
+export const Errors = errors;
 
 interface OpenApiDefinition {
   "2"?: object
@@ -101,6 +101,27 @@ export class OpenRoute {
         return headers;
     }
 
+    handleError(err: Error, context: Context) {
+        const headers = this.defaultHeaders();
+        let status = 500;
+
+        if (err instanceof errors.HttpError) {
+            status = err.status;
+        }
+
+        context.res = {
+            headers,
+            status,
+            body: {
+                error: {
+                    name: err.constructor.name,
+                    message: err.message,
+                    status,
+                },
+            },
+        }
+    }
+
     getHttpTrigger(): AzureFunction {
         return async (context: Context, req: HttpRequest) => {
             const url = new URL(req.url);
@@ -110,10 +131,10 @@ export class OpenRoute {
                 try {
                     await handler.call(this, context, req);
                 } catch (err) {
-                    handleError(err, context);
+                    this.handleError(err, context);
                 }
             } else {
-                handleError(new NotFound("Couldn't find a matching route"), context);
+                this.handleError(new errors.NotFound("Couldn't find a matching route"), context);
             }
         };
     }
