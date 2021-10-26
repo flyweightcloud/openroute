@@ -1,4 +1,4 @@
-import { AzureFunction } from "@azure/functions";
+import { AzureFunction, } from "@azure/functions";
 
 type RequireOnlyOne<T, Keys extends keyof T = keyof T> =
     Pick<T, Exclude<keyof T, Keys>>
@@ -11,6 +11,7 @@ type RequireOnlyOne<T, Keys extends keyof T = keyof T> =
 export interface Route {
     path: string
     method: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     opts: any
     handler: AzureFunction
 }

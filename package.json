@@ -1,14 +1,14 @@
 {
   "name": "@flyweight.cloud/openroute",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A tiny zero runtime dependency router for Azure Functions with Swagger integration",
   "main": "lib/index.js",
   "scripts": {
     "build": "rimraf lib && tsc",
-    "lint": "tslint src/**/*.ts tests/**/*.ts -e \"tests/DemoFunc/node_modules/**/*\" ",
-    "lint:fix": "tslint src/**/*.ts tests/**/*.ts -e \"tests/DemoFunc/node_modules/**/*\" --fix",
+    "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npx eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "test": "jest --config jestconfig.json",
-    "deploy": "npm run lint && npm run build && npm publish"
+    "package": "npm run lint && npm run build && npm publish --access public"
   },
   "author": "Mark Percival <m@mdp.im>",
   "license": "MIT",
@@ -18,10 +18,13 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "eslint": "^8.1.0",
     "jest": "^27.2.4",
     "rimraf": "^3.0.2",
+    "stub-azure-function-context": "^2.0.0-alpha.6",
     "ts-jest": "^27.0.5",
-    "tslint": "^6.1.3",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.4"
   }
 }

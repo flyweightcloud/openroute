@@ -1,5 +1,5 @@
 /* tslint:disable  max-classes-per-file */
-import { Context } from "@azure/functions";
+import { Context, } from "@azure/functions";
 
 export class HttpError extends Error {
     status: number;
@@ -26,7 +26,6 @@ export class Unauthorized extends HttpError {
 
 export function handleError(err: Error | HttpError, context: Context) {
     if (err instanceof HttpError) {
-        const httpErr = err as HttpError;
         context.res = {
             status: err.status.toString(),
             body: {
