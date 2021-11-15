@@ -1,5 +1,5 @@
 import { AzureFunction } from "@azure/functions";
-import { SwaggerOperationObject } from "../../swaggerist/lib";
+import { SwaggerOperationObject } from "@flyweight.cloud/swaggerist";
 
 type RequireOnlyOne<T, Keys extends keyof T = keyof T> =
     Pick<T, Exclude<keyof T, Keys>>
