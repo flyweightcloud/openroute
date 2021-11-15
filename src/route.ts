@@ -1,4 +1,5 @@
-import { AzureFunction, } from "@azure/functions";
+import { AzureFunction } from "@azure/functions";
+import { SwaggerOperationObject } from "../../swaggerist/lib";
 
 type RequireOnlyOne<T, Keys extends keyof T = keyof T> =
     Pick<T, Exclude<keyof T, Keys>>
@@ -21,7 +22,8 @@ interface RouteOptsAll {
     post?: string
     delete?: string
     put?: string
-    [name: string]: string
+    patch?: string
+    swagger?: SwaggerOperationObject
 }
 
 export type RouteOpts = RequireOnlyOne<RouteOptsAll, "get" | "post" | "delete" | "put">;

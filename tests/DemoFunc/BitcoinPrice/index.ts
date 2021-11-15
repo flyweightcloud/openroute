@@ -1,13 +1,18 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { get } from "@flyweight.cloud/request";
+import Swaggerist, { buildSchema, Responses, SwaggeristBaseDefinition, SwaggerOperationObject } from "@flyweight.cloud/swaggerist";
 import { OpenRoute } from "../../../src/index";
-import * as swaggerFile from "./openapitwo.js";
 
+const swaggerDef: SwaggeristBaseDefinition = {
+    info:   {
+        title: "Test Swagger API",
+        description: "Test Swagger API",
+        version: "1.0.0",
+    }
+}
 
 const app = new OpenRoute({
-    openApiDef: {
-        "2": swaggerFile,
-    },
+    swaggerist: Swaggerist.create(swaggerDef),
     cors: {
         allowOrigin: "*",
         allowHeaders: ["*"],
@@ -16,7 +21,14 @@ const app = new OpenRoute({
 });
 
 
-app.route({ get: "/usd"}, async (context: Context, req: HttpRequest): Promise<void> => {
+const usdApiDef: SwaggerOperationObject = {
+  operationId: "getUsdPrice",
+  responses: {
+    200: Responses.Success({...buildSchema({'BTC-USD': {type:'number'}}), description: "USD price"}),
+  }
+}
+
+app.route({ get: "/usd", swagger: usdApiDef}, async (context: Context, req: HttpRequest): Promise<void> => {
     context.log("HTTP trigger function processed a request.");
 
     const btcPriceResp = await get("https://api.coindesk.com/v1/bpi/currentprice.json");
@@ -27,7 +39,14 @@ app.route({ get: "/usd"}, async (context: Context, req: HttpRequest): Promise<vo
 
 });
 
-app.route({get: "/gbp"}, async (context: Context, req: HttpRequest): Promise<void> => {
+const gbpApiDef: SwaggerOperationObject = {
+  operationId: "getGbpPrice",
+  responses: {
+    200: Responses.Success({...buildSchema({'BTC-GBP': {type:'number'}}), description: "GBP price"}),
+  }
+}
+
+app.route({get: "/gbp", swagger: gbpApiDef}, async (context: Context, req: HttpRequest): Promise<void> => {
     context.log("HTTP trigger function processed a request.");
 
     const btcPriceResp = await get("https://api.coindesk.com/v1/bpi/currentprice.json");
