@@ -1,6 +1,6 @@
 {
   "name": "@flyweight.cloud/openroute",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A lightweight router for Azure Functions with Swagger integration",
   "main": "lib/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "Mark Percival <m@mdp.im>",
   "license": "MIT",
   "dependencies": {
-    "@flyweight.cloud/swaggerist": "^0.1.0",
+    "@flyweight.cloud/swaggerist": "^0.1.1",
     "@azure/functions": "^1.2.3",
     "@types/node": "^16.10.3"
   },

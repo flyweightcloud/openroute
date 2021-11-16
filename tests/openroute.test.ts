@@ -60,7 +60,8 @@ describe("Simple function", () => {
         ], null,  Date.now());
         expect(optionRes.res.isRaw).toEqual(true);
         expect(optionRes.res.status).toEqual(204);
-        expect(optionRes.res.headers).toEqual({
+        expect(optionRes.res.headers).toMatchObject({
+            "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "*",
             "Access-Control-Allow-Methods": "*",
@@ -70,7 +71,8 @@ describe("Simple function", () => {
             { type: "http", name: "res", direction: "out" },
         ], null, Date.now());
         expect(getRes.res.body[0].id).toEqual("123");
-        expect(getRes.res.headers).toEqual({
+        expect(optionRes.res.headers).toMatchObject({
+            "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "*",
             "Access-Control-Allow-Methods": "*",

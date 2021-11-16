@@ -1,6 +1,7 @@
 import { Context, HttpRequest } from "@azure/functions"
 import { get } from "@flyweight.cloud/request";
 import Swaggerist, { schemaBuilder, Responses, SwaggerOperationObject, queryParamBuilder } from "@flyweight.cloud/swaggerist";
+import { HttpError } from "../../../src/errors";
 import { OpenRoute } from "../../../src/index"
 
 const API_KEY = process.env.OPENWEATHER_API_KEY;
@@ -57,7 +58,12 @@ const app = new OpenRoute({
       description: "Flyweights demo weather API",
       version: "1.0.0",
     }
-  })
+  }),
+  cors: {
+    allowOrigin: "*",
+    allowHeaders: ["*"],
+    allowMethods: ["*"],
+  }
 });
 
 const currentWeatherDefinition: SwaggerOperationObject = {
@@ -68,8 +74,12 @@ const currentWeatherDefinition: SwaggerOperationObject = {
   }
 }
 
-app.route({get: "/current", swagger: currentWeatherDefinition}, async (context: Context, req: HttpRequest): Promise<void> => {
+app.route({get: "/current", swagger: currentWeatherDefinition}, async (context: Context, req: HttpRequest, openRoute: OpenRoute): Promise<void> => {
     context.log("HTTP trigger function processed a request.");
+
+    if (!req.query.zip && !req.query.city) {
+      throw new HttpError("Please pass a zip or city on the query string", 500);
+    }
 
     let url = `https://api.openweathermap.org/data/2.5/weather?q=${req.query.city}&appid=${API_KEY}`
     if (req.query.zip) {
@@ -80,7 +90,7 @@ app.route({get: "/current", swagger: currentWeatherDefinition}, async (context: 
 
     context.res = {
         body: weather.body,
-        headers: {"Content-Type": "application/json"},
+        headers: openRoute.defaultHeaders(),
     };
 
 });

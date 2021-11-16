@@ -108,9 +108,12 @@ export class OpenRoute {
         return corsHeaders;
     }
 
-    defaultHeaders(): { [key: string]: string } {
-        const headers = {};
+    defaultHeaders(additionalHeaders:{[key: string]: string}={}): { [key: string]: string } {
+        const headers = {
+            "Content-Type": "application/json",
+        };
         Object.assign(headers, this.generateCorsHeaders());
+        Object.assign(headers, additionalHeaders); // Allow for easy overrides and additional headers
         return headers;
     }
 
@@ -142,7 +145,7 @@ export class OpenRoute {
             const handler = this.matchRoute(paths.slice(2), req.method);
             if (handler) {
                 try {
-                    await handler.call(this, context, req);
+                    await handler(context, req, this);
                 } catch (err) {
                     this.handleError(err, context);
                 }
