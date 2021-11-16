@@ -8,6 +8,7 @@
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "npx eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "test": "jest --config jestconfig.json",
+    "predeploy": "npm i && npm run lint && npm run test && npm build",
     "package": "npm run lint && npm run build && npm publish --access public"
   },
   "author": "Mark Percival <m@mdp.im>",
