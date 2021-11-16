@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { get } from "@flyweight.cloud/request";
-import Swaggerist, { buildSchema, Responses, SwaggeristBaseDefinition, SwaggerOperationObject } from "@flyweight.cloud/swaggerist";
+import Swaggerist, { schemaBuilder, Responses, SwaggeristBaseDefinition, SwaggerOperationObject } from "@flyweight.cloud/swaggerist";
 import { OpenRoute } from "../../../src/index";
 
 const swaggerDef: SwaggeristBaseDefinition = {
@@ -24,7 +24,7 @@ const app = new OpenRoute({
 const usdApiDef: SwaggerOperationObject = {
   operationId: "getUsdPrice",
   responses: {
-    200: Responses.Success({...buildSchema({'BTC-USD': {type:'number'}}), description: "USD price"}),
+    200: Responses.Success(schemaBuilder({"BTC-USD": 1234.56})),
   }
 }
 
@@ -42,7 +42,14 @@ app.route({ get: "/usd", swagger: usdApiDef}, async (context: Context, req: Http
 const gbpApiDef: SwaggerOperationObject = {
   operationId: "getGbpPrice",
   responses: {
-    200: Responses.Success({...buildSchema({'BTC-GBP': {type:'number'}}), description: "GBP price"}),
+    200: Responses.Success(schemaBuilder({
+      "$BTC-GBP": {
+        example: "1234.56",
+        type: "number",
+        format: "float",
+        description: "The price of 1 BTC in GBP",
+      }
+    })),
   }
 }
 

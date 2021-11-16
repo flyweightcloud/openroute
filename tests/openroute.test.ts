@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { runStubFunctionFromBindings, createHttpTrigger } from "stub-azure-function-context";
-import Swaggerist, { SwaggerOperationObject, Responses, buildSchema } from "@flyweight.cloud/swaggerist"
+import Swaggerist, { SwaggerOperationObject, Responses, schemaBuilder } from "@flyweight.cloud/swaggerist"
 
 import { OpenRoute, Errors } from "../src/index";
 
@@ -19,7 +19,7 @@ describe("Simple function", () => {
         const swaggerFooPath: SwaggerOperationObject = {
             operationId: "foo",
             responses: {
-                200: Responses.Success({...buildSchema({id: {type: "string"}})}),
+                200: Responses.Success(schemaBuilder({id: "123", status: "closed"}))
             }
         }
 
