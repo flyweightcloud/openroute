@@ -13,7 +13,7 @@
   "author": "Mark Percival <m@mdp.im>",
   "license": "MIT",
   "dependencies": {
-    "@flyweight.cloud/swaggerist": "0.0.3",
+    "@flyweight.cloud/swaggerist": "^0.1.0",
     "@azure/functions": "^1.2.3",
     "@types/node": "^16.10.3"
   },
