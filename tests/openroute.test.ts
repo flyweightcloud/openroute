@@ -1,29 +1,30 @@
 import { Context, HttpRequest } from "@azure/functions";
 import { runStubFunctionFromBindings, createHttpTrigger } from "stub-azure-function-context";
-import Swaggerist, { SwaggerOperationObject, Responses, schemaBuilder } from "@flyweight.cloud/swaggerist"
+import Swaggerist, { Responses, schemaBuilder } from "@flyweight.cloud/swaggerist"
 
 import { OpenRoute, Errors } from "../src/index";
 
 describe("Simple function", () => {
     test("should return valid swagger if setup", async () => {
+        const swaggerBuilder = Swaggerist.create({
+            info: {
+                title: "Test Swagger API",
+                description: "Test Swagger API",
+                version: "1.0.0",
+            }
+        })
         const app = new OpenRoute({
-            swaggerist: Swaggerist.create({
-                info: {
-                    title: "Test Swagger API",
-                    description: "Test Swagger API",
-                    version: "1.0.0",
-                }
-            })
+            swaggerBuilder
         });
 
-        const swaggerFooPath: SwaggerOperationObject = {
+        const fooRoute = swaggerBuilder.addRoute("get", "/foo", {
             operationId: "foo",
             responses: {
                 200: Responses.Success(schemaBuilder({id: "123", status: "closed"}))
             }
-        }
+        })
 
-        app.route({ get: "/foo", swagger: swaggerFooPath }, async (context: Context, _req: HttpRequest): Promise<void> => {
+        app.route(fooRoute, async (context: Context, _req: HttpRequest): Promise<void> => {
             context.res = {
                 // status: 200, /* Defaults to 200 */
                 body: [
@@ -35,7 +36,8 @@ describe("Simple function", () => {
         const openApiDoc = app.generateOpenApi("2", { url: "https://foo.com/api/test/somefunction" });
         expect(openApiDoc["host"]).toEqual("foo.com");
         expect(openApiDoc["schemes"][0]).toEqual("https");
-        expect(openApiDoc["paths"]).toHaveProperty("/api/test/foo");
+        expect(openApiDoc["paths"]).toHaveProperty("/foo");
+        expect(openApiDoc["basePath"]).toBe("/api/test");
     });
 
     test("should route correctly", async () => {
@@ -46,7 +48,7 @@ describe("Simple function", () => {
                 allowMethods: ["*"],
             },
         });
-        app.route({ get: "/foo" }, async (context: Context, _req: HttpRequest): Promise<void> => {
+        app.route({ method: "get", path: "/foo" }, async (context: Context, _req: HttpRequest): Promise<void> => {
             context.res = {
                 headers: app.defaultHeaders(),
                 body: [
@@ -70,6 +72,7 @@ describe("Simple function", () => {
             { type: "httpTrigger", name: "req", direction: "in", data: createHttpTrigger("GET", "http://example.com/api/fn/foo") },
             { type: "http", name: "res", direction: "out" },
         ], null, Date.now());
+    
         expect(getRes.res.body[0].id).toEqual("123");
         expect(optionRes.res.headers).toMatchObject({
             "Content-Type": "application/json",
@@ -81,10 +84,10 @@ describe("Simple function", () => {
 
     test("should route errors correctly", async () => {
         const app = new OpenRoute({ });
-        app.route({ get: "/error" }, async (_context: Context, _req: HttpRequest): Promise<void> => {
+        app.route({ method: "get", path: "/error" }, async (_context: Context, _req: HttpRequest): Promise<void> => {
             throw new Error("plain error");
         });
-        app.route({ get: "/http_error" }, async (_context: Context, _req: HttpRequest): Promise<void> => {
+        app.route({ method: "get", path: "/http_error" }, async (_context: Context, _req: HttpRequest): Promise<void> => {
             throw new Errors.Unauthorized("http error");
         });
         const plainError = await runStubFunctionFromBindings(app.getHttpTrigger(), [

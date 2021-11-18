@@ -62,13 +62,11 @@ export const buildHTML = (spec: object): string => {
   `
 }
 
-export const buildSwaggerUiRoute = (openRoute: OpenRoute): (_context: Context, _req: HttpRequest) => void => {
-    return (context: Context, req: HttpRequest) => {
-        const spec = openRoute.generateOpenApi("2", req);
-        const html = buildHTML(spec)
-        return context.res = {
-            headers: Object.assign(context.res.headers, { "Content-Type": "text/html" }),
-            body: html,
-        }
-    }
+export const buildSwaggerUiRoute = (context: Context, req: HttpRequest, openRoute: OpenRoute) => {
+  const spec = openRoute.generateOpenApi("2", req);
+  const html = buildHTML(spec)
+  return context.res = {
+    headers: Object.assign(context.res.headers, { "Content-Type": "text/html" }),
+    body: html,
+  }
 }

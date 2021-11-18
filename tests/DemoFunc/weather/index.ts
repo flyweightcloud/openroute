@@ -1,6 +1,6 @@
 import { Context, HttpRequest } from "@azure/functions"
 import { get } from "@flyweight.cloud/request";
-import Swaggerist, { schemaBuilder, Responses, SwaggerOperationObject, queryParamBuilder } from "@flyweight.cloud/swaggerist";
+import Swaggerist, { schemaBuilder, Responses, queryParamBuilder, pathParamBuilder} from "@flyweight.cloud/swaggerist";
 import { HttpError } from "../../../src/errors";
 import { OpenRoute } from "../../../src/index"
 
@@ -51,14 +51,16 @@ const weatherApiResponse = {
   "cod": 200
 };
 
+const swaggerBuilder = Swaggerist.create({
+  info: {
+    title: "Weather APi",
+    description: "Flyweights demo weather API",
+    version: "1.0.0",
+  }
+})
+
 const app = new OpenRoute({
-  swaggerist: Swaggerist.create({
-    info: {
-      title: "Weather APi",
-      description: "Flyweights demo weather API",
-      version: "1.0.0",
-    }
-  }),
+  swaggerBuilder,
   cors: {
     allowOrigin: "*",
     allowHeaders: ["*"],
@@ -66,15 +68,15 @@ const app = new OpenRoute({
   }
 });
 
-const currentWeatherDefinition: SwaggerOperationObject = {
+const getCurrentWeatherRoute = swaggerBuilder.get("/current", {
   operationId: "getCurrentWeather",
   parameters: [...queryParamBuilder({zip: "12345", city: "Mountain View"})],
   responses: {
     200: Responses.Success(schemaBuilder(weatherApiResponse)),
   }
-}
+})
 
-app.route({get: "/current", swagger: currentWeatherDefinition}, async (context: Context, req: HttpRequest, openRoute: OpenRoute): Promise<void> => {
+app.route(getCurrentWeatherRoute, async (context: Context, req: HttpRequest, openRoute: OpenRoute): Promise<void> => {
     context.log("HTTP trigger function processed a request.");
 
     if (!req.query.zip && !req.query.city) {
@@ -86,6 +88,29 @@ app.route({get: "/current", swagger: currentWeatherDefinition}, async (context: 
       url = `https://api.openweathermap.org/data/2.5/weather?zip=${req.query.zip}&appid=${API_KEY}`
 
     }
+    const weather = await get(url)
+
+    context.res = {
+        body: weather.body,
+        headers: openRoute.defaultHeaders(),
+    };
+
+});
+
+
+const getCurrentWeatherPathRoute = swaggerBuilder.get("/current/{zipCode}", {
+  operationId: "getCurrentWeatherByZip",
+  parameters: [...pathParamBuilder({zipCode: "12345"})],
+  responses: {
+    200: Responses.Success(schemaBuilder(weatherApiResponse)),
+  }
+})
+
+app.route(getCurrentWeatherPathRoute, async (context: Context, req: HttpRequest, openRoute: OpenRoute): Promise<void> => {
+    context.log("HTTP trigger function processed a request.");
+
+    const zipCode = context.bindingData.zipCode
+    let url = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode}&appid=${API_KEY}`
     const weather = await get(url)
 
     context.res = {
