@@ -1,6 +1,7 @@
 # Flyweight OpenRoute
 
-A lightweight framework for building Swagger/OpenAPI serverless functions
+A lightweight framework for building Swagger/OpenAPI serverless functions for consumption
+by Microsoft Power Platform and beyond.
 
 ## Installation
 
@@ -11,58 +12,66 @@ A lightweight framework for building Swagger/OpenAPI serverless functions
 The goal is for OpenRoute to require little to no modification of your Azure handlers
 
 
-```
-import { Context, HttpRequest } from "@azure/functions";
+```typescript
+import { Context, HttpRequest } from "@azure/functions"
 import { get } from "@flyweight.cloud/request";
-import Swaggerist, { buildSchema, Responses, SwaggeristBaseDefinition, SwaggerOperationObject } from "@flyweight.cloud/swaggerist";
-import { OpenRoute } from "@flyweight.cloud/openroute";
+import Swaggerist, { schemaBuilder, Responses, queryParamBuilder, pathParamBuilder } from "@flyweight.cloud/swaggerist";
+import { OpenRoute } from "@flyweight.cloud/openroute"
+import { HttpError } from "@flyweight.cloud/openroute/lib/errors";
 
-const swaggerDef: SwaggeristBaseDefinition = {
-    info:   {
-        title: "Bitcoin Price API",
-        description: "The price of bitcoin in USD and GBP",
-        version: "1.0.0",
+const API_KEY = process.env.OPENWEATHER_API_KEY;
+
+const exampleWeatherApiResponse = {
+  "coord": {
+    "lon": -122.08,
+    "lat": 37.39
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
     }
-}
+  ],
+  "base": "stations"
+};
+
+const swaggerBuilder = Swaggerist.create({
+  info: {
+    title: "Weather API",
+    description: "Flyweights demo weather API",
+    version: "1.0.0",
+  }
+})
 
 const app = new OpenRoute({
-    swaggerist: Swaggerist.create(swaggerDef),
+  swaggerBuilder,
+  cors: {
+    allowOrigin: "*",
+    allowHeaders: ["*"],
+    allowMethods: ["*"],
+  }
 });
 
-
-// Define our API using Swagger
-const usdApiDef: SwaggerOperationObject = {
-  operationId: "getUsdPrice",
+const getCurrentWeatherPathRoute = swaggerBuilder.get("/current/{zipCode}", {
+  operationId: "getCurrentWeatherByZip",
+  parameters: [...pathParamBuilder({zipCode: "12345"})],
   responses: {
-    200: Responses.Success({...buildSchema({'BTC-USD': {type:'number'}}), description: "USD price"}),
+    200: Responses.Success(schemaBuilder(exampleWeatherApiResponse)),
   }
-}
+})
 
-app.route({ get: "/usd", swagger: usdApiDef}, async (context: Context, req: HttpRequest): Promise<void> => {
-    const btcPriceResp = await get("https://api.coindesk.com/v1/bpi/currentprice.json");
+app.route(getCurrentWeatherPathRoute, async (context: Context, req: HttpRequest, openRoute: OpenRoute): Promise<void> => {
+    context.log("HTTP trigger function processed a request.");
 
-    context.res.body = {
-      "BTC-USD": btcPriceResp.json.bpi.USD.rate,
-    };
-
-});
-
-const gbpApiDef: SwaggerOperationObject = {
-  operationId: "getGbpPrice",
-  responses: {
-    200: Responses.Success({...buildSchema({'BTC-GBP': {type:'number'}}), description: "GBP price"}),
-  }
-}
-
-app.route({get: "/gbp", swagger: gbpApiDef}, async (context: Context, req: HttpRequest): Promise<void> => {
-    const btcPriceResp = await get("https://api.coindesk.com/v1/bpi/currentprice.json");
+    const zipCode = context.bindingData.zipCode
+    let url = `https://api.openweathermap.org/data/2.5/weather?zip=${zipCode}&appid=${API_KEY}`
+    const weather = await get(url)
 
     context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: {
-            "BTC-GBP": btcPriceResp.json.bpi.GBP.rate,
-        },
-        headers: {"Content-Type": "application/json"},
+        body: weather.body,
+        headers: openRoute.defaultHeaders(),
     };
 
 });
@@ -71,6 +80,6 @@ export default app.getHttpTrigger();
 ```
 
 You will also need to modify function.json to add a 'catch-all' route
-`"route": "BitcoinPrice/{*route}"`
+`"route": "weather/{*route}"`
 
-Check out DemoFunc to see the full featured function and it's settings.
+Check out [DemoFunc](https://github.com/flyweightcloud/openroute-azure-demo) to see the full featured function and it's settings.
