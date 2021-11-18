@@ -1,11 +1,12 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { OpenRoute } from ".";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type OpenRouteFunction = (context: Context, req: HttpRequest, openRoute: OpenRoute) => Promise<any> | void;
 
 export type HttpMethod = "get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "options"
 
-export type OpenRouteHandler = AzureFunction |OpenRouteFunction;
+export type OpenRouteHandler = AzureFunction | OpenRouteFunction;
 
 export interface RouteHandler {
     path: string

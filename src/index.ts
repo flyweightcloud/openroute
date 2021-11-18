@@ -41,7 +41,7 @@ export class OpenRoute {
     protocol: string;
     cors: CorsOptions;
 
-    constructor({ openApiDef, basePath, hostname, protocol, cors, swaggerBuilder}: OpenRouteArgs) {
+    constructor({ openApiDef, basePath, cors, swaggerBuilder}: OpenRouteArgs) {
         this.routes = [
             { method: "get", path: "/openapi", opts: {}, handler: openApiRoute },
             { method: "get", path: "/swagger-ui", opts: {}, handler: buildSwaggerUiRoute },
@@ -79,11 +79,11 @@ export class OpenRoute {
 
     getRelativePath(path): string {
         if (this.basePath) {
-            return path.replace(this.basePath, '/')
+            return path.replace(this.basePath, "/")
         }
 
-        const parts = path.split('/').filter((p) => p !== '')
-        return '/' + parts.slice(2).join('/')
+        const parts = path.split("/").filter((p) => p !== "")
+        return "/" + parts.slice(2).join("/")
     }
 
     generateCorsHeaders(): { [key: string]: string } {
@@ -136,10 +136,10 @@ export class OpenRoute {
 
             let handler: OpenRouteHandler;
             if (routeMatch && routeMatch.route.method === req.method.toLowerCase()) {
-              Object.assign(context.bindingData, routeMatch.pathMatch.bindingData)
-              handler = routeMatch.route.handler;
+                Object.assign(context.bindingData, routeMatch.pathMatch.bindingData)
+                handler = routeMatch.route.handler;
             } else if (pathMatch && req.method.toLowerCase() === "options") {
-              handler = preflightRoute;
+                handler = preflightRoute;
             }
 
             if (handler) {
