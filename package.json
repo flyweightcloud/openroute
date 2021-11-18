@@ -1,6 +1,6 @@
 {
   "name": "@flyweight.cloud/openroute",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "A lightweight router for Azure Functions with Swagger integration",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "@azure/functions": "^1.2.3"
   },
   "devDependencies": {
-    "@flyweight.cloud/swaggerist": "^0.1.1",
+    "@flyweight.cloud/swaggerist": "^0.2.0",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
     "@typescript-eslint/eslint-plugin": "^5.2.0",

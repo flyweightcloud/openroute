@@ -6,3 +6,4 @@ jestconfig.json
 .github
 coverage
 *.tgz
+tests

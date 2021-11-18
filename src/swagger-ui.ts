@@ -9,7 +9,7 @@ export const buildHTML = (spec: object): string => {
     <meta charset="UTF-8">
     <title>Flyweight Swagger UI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.css" integrity="sha512-sFCybMLlCEgtHSq/iUUG/HL4PKfg5l/qlA2scyRpDWTZU8hWOomj/CrOTxpi9+w8rODDy+crxi2VxhLZ+gehWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" type="image/png" rel="icon">
+    <link href="https://flyweightcloud.github.io/assets/images/favicon/favicon.ico" type="image/png" rel="icon">
     <style>
       html
       {
