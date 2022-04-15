@@ -82,6 +82,57 @@ describe("Simple function", () => {
         });
     });
 
+    test("should handle openapi swagger requests", async () => {
+        const swaggerBuilder = Swaggerist.create({
+            info: {
+                title: "Weather APi",
+                description: "Flyweights demo weather API",
+                version: "1.0.0",
+            }
+        })
+        const app = new OpenRoute({
+            swaggerBuilder,
+            cors: {
+                allowOrigin: "*",
+                allowHeaders: ["*"],
+                allowMethods: ["*"],
+            },
+        });
+        app.route({ method: "get", path: "/foo" }, async (context: Context, _req: HttpRequest): Promise<void> => {
+            context.res = {
+                headers: app.defaultHeaders(),
+                body: [
+                    { id: "123", status: "closed" },
+                ],
+            };
+        });
+        const optionRes = await runStubFunctionFromBindings(app.getHttpTrigger(), [
+            { type: "httpTrigger", name: "req", direction: "in", data: createHttpTrigger("OPTIONS", "http://example.com/api/fn/foo") },
+            { type: "http", name: "res", direction: "out" },
+        ], null,  Date.now());
+        expect(optionRes.res.isRaw).toEqual(true);
+        expect(optionRes.res.status).toEqual(204);
+        expect(optionRes.res.headers).toMatchObject({
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*",
+        });
+
+        const openapiRes = await runStubFunctionFromBindings(app.getHttpTrigger(), [
+            { type: "httpTrigger", name: "req", direction: "in", data: createHttpTrigger("GET", "http://example.com/api/fn/openapi") },
+            { type: "http", name: "res", direction: "out" },
+        ], null,  Date.now());
+        expect(openapiRes.res.status).toEqual(200);
+        expect(openapiRes.res.headers).toMatchObject({
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*",
+        });
+    });
+
+
     test("should route errors correctly", async () => {
         const app = new OpenRoute({ });
         app.route({ method: "get", path: "/error" }, async (_context: Context, _req: HttpRequest): Promise<void> => {
