@@ -4,6 +4,76 @@ import Swaggerist, { Responses, schemaBuilder } from "@flyweight.cloud/swaggeris
 
 import { OpenRoute, Errors } from "../src/index";
 
+describe("The Openroute class", () => {
+    test("should be setup correctly", () => {
+        const swaggerBuilder = Swaggerist.create({
+            info: {
+                title: "Test Swagger API",
+                description: "Test Swagger API",
+                version: "1.0.0",
+            }
+        })
+        const app = new OpenRoute({
+            swaggerBuilder
+        });
+
+        const openApiDoc = app.generateOpenApi("2", {
+            url: "https://foo.com/api/test/somefunction",
+            headers: {}
+        });
+        expect(openApiDoc["host"]).toEqual("foo.com")
+        expect(openApiDoc["swagger"]).toEqual("2.0")
+        expect(openApiDoc["basePath"]).toEqual("/api/test")
+    })
+    test("should allow overrides", () => {
+        const swaggerBuilder = Swaggerist.create({
+            info: {
+                title: "Test Swagger API",
+                description: "Test Swagger API",
+                version: "1.0.0",
+            }
+        })
+        const app = new OpenRoute({
+            swaggerBuilder,
+            host: "baz.com",
+            basePath: "/APEye/test"
+        });
+
+        const openApiDoc = app.generateOpenApi("2", {
+            url: "https://foo.com/api/test/somefunction",
+            headers: {}
+        });
+        expect(openApiDoc["host"]).toEqual("baz.com")
+        expect(openApiDoc["swagger"]).toEqual("2.0")
+        expect(openApiDoc["basePath"]).toEqual("/APEye/test")
+    })
+    // This is needed for Github CodeSpaces port forwarding
+    test("should allow overrides", () => {
+        const swaggerBuilder = Swaggerist.create({
+            info: {
+                title: "Test Swagger API",
+                description: "Test Swagger API",
+                version: "1.0.0",
+            }
+        })
+        const app = new OpenRoute({
+            swaggerBuilder,
+        });
+
+        // This is what we see if Github Codespaces
+        const openApiDoc = app.generateOpenApi("2", {
+            url: "http://localhost/api/test/somefunction",
+            headers: {
+                "x-forwarded-host": "mycodespace-7071.preview.app.github.dev",
+                "x-forwarded-port": "443",
+                "x-forwarded-proto": "https",
+            }
+        });
+        expect(openApiDoc["host"]).toEqual("mycodespace-7071.preview.app.github.dev")
+        expect(openApiDoc["schemes"]).toEqual(["https"])
+    })
+})
+
 describe("Simple function", () => {
     test("should return valid swagger if setup", async () => {
         const swaggerBuilder = Swaggerist.create({
@@ -33,7 +103,10 @@ describe("Simple function", () => {
             };
 
         });
-        const openApiDoc = app.generateOpenApi("2", { url: "https://foo.com/api/test/somefunction" });
+        const openApiDoc = app.generateOpenApi("2", {
+            url: "https://foo.com/api/test/somefunction",
+            headers: {}
+        });
         expect(openApiDoc["host"]).toEqual("foo.com");
         expect(openApiDoc["schemes"][0]).toEqual("https");
         expect(openApiDoc["paths"]).toHaveProperty("/foo");

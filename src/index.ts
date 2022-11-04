@@ -4,6 +4,7 @@ import { findRouteMatch } from "./matchers";
 import { RouteHandler, Route, OpenRouteHandler } from "./types";
 import { buildSwaggerUiRoute } from "./swagger-ui";
 import { openApiRoute, preflightRoute } from "./routes";
+import { urlFromRequest } from "./utils";
 
 
 export const Errors = errors;
@@ -20,7 +21,7 @@ type SwaggerBuilder = {
 interface OpenRouteArgs {
   openApiDef?: OpenApiDefinition
   basePath?: string
-  hostname?: string
+  host?: string
   protocol?: string
   cors?: CorsOptions
   swaggerBuilder?: SwaggerBuilder;
@@ -37,16 +38,17 @@ export class OpenRoute {
     swaggerBuilder: SwaggerBuilder;
     openApiDef: OpenApiDefinition;
     basePath: string;
-    hostname: string;
+    host: string;
     protocol: string;
     cors: CorsOptions;
 
-    constructor({ openApiDef, basePath, cors, swaggerBuilder}: OpenRouteArgs) {
+    constructor({ openApiDef, basePath, host, cors, swaggerBuilder}: OpenRouteArgs) {
         this.routes = [
             { method: "get", path: "/openapi", opts: {}, handler: openApiRoute },
             { method: "get", path: "/swagger-ui", opts: {}, handler: buildSwaggerUiRoute },
         ];
         this.basePath = basePath || null;
+        this.host = host || null;
         this.cors = cors || null;
         this.openApiDef = openApiDef || {};
         this.swaggerBuilder = swaggerBuilder || null;
@@ -154,15 +156,16 @@ export class OpenRoute {
         };
     }
 
-    generateOpenApi(version: string, request: Pick<HttpRequest, "url">): object {
+    generateOpenApi(version: string, request: Pick<HttpRequest, "url" | "headers">): object {
         if (version === "2" && this.openApiDef["2"]) {
             return this.openApiDef["2"];
         } else if (version === "3" && this.openApiDef["3"]) {
             return this.openApiDef["3"];
         }
-        const url = new URL(request.url);
-        const basePath = "/" + url.pathname.slice(1).split("/").slice(0, 2).join("/");
-        return this.swaggerBuilder.generate(version, { host: url.host, scheme: url.protocol.slice(0, -1), basePath });
+        const url = urlFromRequest(request)
+        const basePath = this.basePath || "/" + url.pathname.slice(1).split("/").slice(0, 2).join("/");
+        const host = this.host || url.host
+        return this.swaggerBuilder.generate(version, { host, scheme: url.protocol.slice(0, -1), basePath });
     }
 
 }
