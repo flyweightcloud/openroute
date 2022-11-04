@@ -71,6 +71,7 @@ describe("The Openroute class", () => {
         });
         expect(openApiDoc["host"]).toEqual("mycodespace-7071.preview.app.github.dev")
         expect(openApiDoc["schemes"]).toEqual(["https"])
+        expect(openApiDoc["basePath"]).toEqual("/api/test")
     })
 })
 
