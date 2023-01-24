@@ -1,3 +1,5 @@
+## v0.6.4 Fix path escaping
+
 ## v0.1.3 Fix JSON content-type
 
 - add proper content-type - 'javascript'

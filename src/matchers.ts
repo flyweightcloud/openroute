@@ -28,7 +28,7 @@ export const matchPathRequest = (path: string, testPath: string): PathMatch | nu
 
         if (pathPart.startsWith("{") && pathPart.endsWith("}")) {
             const key = trimSurrounding(pathPart)
-            result.bindingData[key] = testPathPart
+            result.bindingData[key] = decodeURIComponent(testPathPart)
         } else if (pathPart !== testPathPart) {
             return null
         }

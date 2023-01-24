@@ -22,6 +22,10 @@ describe("Matching a request path to a definition", () => {
         expect(match.bindingData.id).toBe("123")
         expect(match.bindingData.query).toBe("bar")
 
+        match = matchPathRequest("/foo/{id}/baz/{query}", "/foo/123/baz/foo%2Ffoo%2Fbaz%20%26%20bar")
+        expect(match.bindingData.id).toBe("123")
+        expect(match.bindingData.query).toBe("foo/foo/baz & bar")
+
         match = matchPathRequest("/foo/{id}/baz/{query}", "/foo/123/baz")
         expect(match).toBeNull()
 
